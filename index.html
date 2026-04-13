@@ -100,42 +100,6 @@
             line-height: 1.6;
             margin: 0;
         }
-        
-        .jump-section {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        
-        #jumpNum {
-            flex: 1;
-            padding: 10px 12px;
-            font-size: 14px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            outline: none;
-            font-family: 'Courier New', monospace;
-        }
-        
-        #jumpNum:focus {
-            border-color: #2196F3;
-        }
-        
-        #jumpBtn {
-            padding: 10px 16px;
-            font-size: 13px;
-            white-space: nowrap;
-            background: transparent;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        #jumpBtn:hover {
-            background: #f5f5f5;
-            border-color: #999;
-        }
     </style>
 </head>
 <body>
@@ -156,19 +120,12 @@
             
             <button id="nextBtn" class="nav-btn">+</button>
         </div>
-        
-        <div class="jump-section">
-            <input type="number" id="jumpNum" placeholder="번호 입력">
-            <button id="jumpBtn">바로이동</button>
-        </div>
     </div>
 
     <script>
         const storeNumInput = document.getElementById('storeNum');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
-        const jumpNum = document.getElementById('jumpNum');
-        const jumpBtn = document.getElementById('jumpBtn');
 
         let currentNum = 0;
 
@@ -218,24 +175,6 @@
             currentNum++;
             storeNumInput.value = currentNum;
             openBaeminApp();
-        });
-
-        jumpBtn.addEventListener('click', () => {
-            const num = parseInt(jumpNum.value);
-            
-            if (isNaN(num)) {
-                alert('숫자를 입력해주세요');
-                return;
-            }
-            
-            currentNum = num;
-            storeNumInput.value = currentNum;
-            jumpNum.value = '';
-            openBaeminApp();
-        });
-
-        jumpNum.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') jumpBtn.click();
         });
 
         storeNumInput.addEventListener('keypress', (e) => {
