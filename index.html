@@ -5,266 +5,191 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>배민 매장 검색</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
-            background: #f5f5f5;
-            padding: 12px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        
-        .section {
-            background: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        h2 {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 1.2rem;
-            color: #1a1a1a;
-        }
-        
-        label {
-            display: block;
-            font-size: 12px;
-            font-weight: 500;
-            color: #666;
-            margin-bottom: 6px;
-        }
-        
-        input[type="number"],
-        input[type="text"] {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            outline: none;
-            font-family: 'Courier New', monospace;
-            margin-bottom: 1rem;
-        }
-        
-        input:focus {
-            border-color: #2196F3;
-        }
-        
-        .control-buttons {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-        
-        .nav-btn {
-            flex: 0 0 50px;
-            padding: 12px;
-            font-size: 24px;
-            font-weight: 500;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .nav-btn:hover {
-            background: #f5f5f5;
-        }
-        
-        .nav-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .instruction-text {
-            flex: 1;
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-            line-height: 1.5;
-        }
-        
-        button {
-            width: 100%;
-            padding: 10px 12px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        button:hover {
-            background: #f5f5f5;
-        }
-        
-        .result {
-            margin-top: 1rem;
-            padding: 12px;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 13px;
-            font-weight: 500;
-            display: none;
-        }
-        
-        .result.show {
-            display: block;
-        }
-        
-        .result.success {
-            background: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #c8e6c9;
-        }
-        
-        .result.fail {
-            background: #ffebee;
-            color: #c62828;
-            border: 1px solid #ffcdd2;
-        }
-        
-        .result.loading {
-            background: #e3f2fd;
-            color: #1565c0;
-            border: 1px solid #bbdefb;
-        }
-        
-        .result.error {
-            background: #fff3e0;
-            color: #e65100;
-            border: 1px solid #ffe0b2;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif; background: #f5f5f5; padding: 12px; min-height: 100vh; }
+        .container { max-width: 400px; margin: 0 auto; }
+        .section { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        h2 { font-size: 16px; font-weight: 600; margin-bottom: 1.2rem; color: #1a1a1a; }
+        label { display: block; font-size: 12px; font-weight: 500; color: #666; margin-bottom: 6px; }
+        input[type="number"], input[type="text"] { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; outline: none; font-family: 'Courier New', monospace; margin-bottom: 1rem; }
+        input:focus { border-color: #2196F3; }
+        .control-buttons { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .nav-btn { flex: 0 0 50px; padding: 12px; font-size: 24px; font-weight: 500; border: 1px solid #ddd; border-radius: 6px; background: white; cursor: pointer; transition: all 0.2s; }
+        .nav-btn:hover { background: #f5f5f5; }
+        .nav-btn:active { transform: scale(0.95); }
+        .instruction-text { flex: 1; text-align: center; font-size: 12px; color: #666; line-height: 1.5; }
+        button { width: 100%; padding: 10px 12px; background: white; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        button:hover { background: #f5f5f5; }
+        .result { margin-top: 1rem; padding: 12px; border-radius: 6px; font-size: 13px; display: none; }
+        .result.show { display: block; }
+        .result.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+        .result.fail { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+        .result.info { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+        .result.error { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+        .promo-title { font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+        .promo-info { font-size: 12px; line-height: 1.6; text-align: left; }
+        .promo-info strong { font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="section">
             <h2>배민 매장 검색</h2>
-            
             <label>번호 입력</label>
             <input type="number" id="storeNum" placeholder="14850643">
-            
             <div class="control-buttons">
                 <button id="prevBtn" class="nav-btn">−</button>
-                <div class="instruction-text">
-                    위 번호대로<br>배민열리고<br>숫자증감(+,−)
-                </div>
+                <div class="instruction-text">위 번호대로<br>배민열리고<br>숫자증감(+,−)</div>
                 <button id="nextBtn" class="nav-btn">+</button>
             </div>
         </div>
         
         <div class="section">
             <h2>가입 여부 확인</h2>
-            
             <label>사업자번호</label>
             <input type="text" id="bizNum" placeholder="1234567890">
-            
             <button id="searchBtn">검색</button>
-            
             <div id="result" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h2>지역별 프로모션 (5월)</h2>
+            <label>지역 검색 (예: 강남, 강남구)</label>
+            <input type="text" id="regionInput" placeholder="강남구">
+            <button id="regionBtn">검색</button>
+            <div id="regionResult" class="result"></div>
         </div>
     </div>
 
     <script>
+        // ===== 배민 검색 =====
         const storeNumInput = document.getElementById('storeNum');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
         let currentNum = 0;
 
         function openBaeminApp() {
-            if (currentNum === 0) {
-                alert('번호를 입력해주세요');
-                return;
-            }
+            if (currentNum === 0) { alert('번호를 입력해주세요'); return; }
             const deeplink = `https://www.baemin.com/shopDetail?shopDetail_shopNo=${currentNum}&bm_rfr=SHARE&shopDetail_campaignId=-1`;
             window.open(deeplink, '_blank');
         }
 
         storeNumInput.addEventListener('input', () => {
             const num = parseInt(storeNumInput.value);
-            if (!isNaN(num)) {
-                currentNum = num;
-            }
+            if (!isNaN(num)) currentNum = num;
         });
 
         prevBtn.addEventListener('click', () => {
-            if (currentNum === 0) {
-                alert('번호를 입력해주세요');
-                return;
-            }
+            if (currentNum === 0) { alert('번호를 입력해주세요'); return; }
             currentNum--;
             storeNumInput.value = currentNum;
             openBaeminApp();
         });
 
         nextBtn.addEventListener('click', () => {
-            if (currentNum === 0) {
-                alert('번호를 입력해주세요');
-                return;
-            }
+            if (currentNum === 0) { alert('번호를 입력해주세요'); return; }
             currentNum++;
             storeNumInput.value = currentNum;
             openBaeminApp();
         });
 
+        // ===== 요기요 검증 =====
         const bizNumInput = document.getElementById('bizNum');
         const searchBtn = document.getElementById('searchBtn');
         const resultDiv = document.getElementById('result');
 
         searchBtn.addEventListener('click', async () => {
             const bizNum = bizNumInput.value.trim();
-            
-            if (!bizNum) {
-                showResult('사업자번호를 입력해주세요', 'error');
-                return;
-            }
-            
-            showResult('검색 중...', 'loading');
-            
-            try {
-                const response = await fetch('/api/check-yogiyo', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ bizNum: bizNum })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    showResult('✅ 가입됨', 'success');
-                } else {
-                    showResult('❌ 미가입', 'fail');
-                }
-            } catch (error) {
-                showResult('백엔드 서버 미구축 (다음 단계)', 'error');
-            }
+            if (!bizNum) { showResult('사업자번호를 입력해주세요', 'error'); return; }
+            showResult('백엔드 서버 미구축 (다음 단계)', 'info');
         });
 
         function showResult(message, className) {
-            resultDiv.textContent = message;
+            resultDiv.innerHTML = message;
             resultDiv.className = 'result show ' + className;
         }
 
         bizNumInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') searchBtn.click();
+        });
+
+        // ===== 지역 프로모션 검색 =====
+        const promotionData = {
+            // B2B Co-sales 집중영업지역 (13개 구)
+            cosales: {
+                regions: ['성동구', '강동구', '광진구', '성북구', '동대문구', '중랑구', '구로구', '양천구', '동작구', '도봉구', '노원구', '강북구', '관악구'],
+                title: 'B2B Co-sales 집중영업지역',
+                info: '<strong>VD:</strong> 3% (~8/31)<br><strong>OD:</strong> 3% + 2,900원 (~8/31)<br><strong>포장:</strong> 3% (~8/31)<br><strong>이후:</strong> 제휴 이용료'
+            },
+            // 스페셜 프로모션 (19개 구)
+            special: {
+                regions: ['성동구', '강동구', '광진구', '성북구', '동대문구', '중랑구', '구로구', '양천구', '동작구', '도봉구', '노원구', '강북구', '관악구', '강남구', '서초구', '마포구', '용산구', '중구', '종로구'],
+                title: '스페셜 프로모션',
+                info: '<strong>VD:</strong> 7.7% (~8/31) → 9.7% (9/1~)<br><strong>OD:</strong> 3.3% + 3,200원 (~8/31) → 6.7% + 3,200원 (9/1~)<br><strong>포장:</strong> 7.7%'
+            },
+            // 가게배달 신규입점 프로모션 (9개 군)
+            vdPromo: {
+                regions: ['단양군', '괴산군', '태안군', '고성군', '남해군', '산청군', '의령군', '하동군', '합천군'],
+                title: '가게배달 신규입점 프로모션',
+                info: '<strong>VD:</strong> 7.7% (~6/30) → 9.7% (7/1~)<br><strong>포장:</strong> 7.7%<br><strong>※ OD 배달 불가 지역 한정</strong>'
+            },
+            // 신규 입점 프로모션 Plus (경기 용인)
+            plus: {
+                regions: ['수지구', '기흥구'],
+                title: '신규 입점 프로모션 Plus',
+                info: '<strong>VD:</strong> 9.7%<br><strong>OD:</strong> 6.7% + 3,100원 (~7/31) → 9.7% + 3,100원 (8/1~)<br><strong>포장:</strong> 7.7%'
+            }
+        };
+
+        const regionInput = document.getElementById('regionInput');
+        const regionBtn = document.getElementById('regionBtn');
+        const regionResultDiv = document.getElementById('regionResult');
+
+        regionBtn.addEventListener('click', () => {
+            let query = regionInput.value.trim();
+            if (!query) {
+                showRegionResult('지역명을 입력해주세요', 'error');
+                return;
+            }
+
+            // 구/군 자동 추가
+            if (!query.endsWith('구') && !query.endsWith('군')) {
+                // 자동 매칭: 군 단위 먼저 체크
+                const guns = ['단양', '괴산', '태안', '고성', '남해', '산청', '의령', '하동', '합천'];
+                if (guns.includes(query)) {
+                    query += '군';
+                } else {
+                    query += '구';
+                }
+            }
+
+            const matches = [];
+            for (const key in promotionData) {
+                if (promotionData[key].regions.includes(query)) {
+                    matches.push(promotionData[key]);
+                }
+            }
+
+            if (matches.length === 0) {
+                showRegionResult(`<strong>${query}</strong><br><br>해당 지역은 특별 프로모션 대상이 아닙니다.<br><br><strong>📌 일반 신규 입점 프로모션</strong><br><strong>VD:</strong> 9.7%<br><strong>OD:</strong> 6.7% + 2,900원 (~7/31) → 9.7% + 2,900원 (8/1~)<br><strong>포장:</strong> 7.7%`, 'info');
+                return;
+            }
+
+            let html = `<div class="promo-title">📍 ${query}</div>`;
+            matches.forEach(match => {
+                html += `<div class="promo-info" style="margin-bottom:12px;"><strong>✅ ${match.title}</strong><br>${match.info}</div>`;
+            });
+
+            showRegionResult(html, 'success');
+        });
+
+        function showRegionResult(message, className) {
+            regionResultDiv.innerHTML = message;
+            regionResultDiv.className = 'result show ' + className;
+        }
+
+        regionInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') regionBtn.click();
         });
     </script>
 </body>
