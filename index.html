@@ -46,14 +46,6 @@
         </div>
         
         <div class="section">
-            <h2>요기요 가입 여부 확인</h2>
-            <label>사업자번호 (10자리)</label>
-            <input type="text" id="bizNum" placeholder="4191802298 (- 없이)">
-            <button id="searchBtn">검색</button>
-            <div id="result" class="result"></div>
-        </div>
-        
-        <div class="section">
             <h2>지역별 프로모션 (5월)</h2>
             <label>지역 검색 (예: 강남, 강남구)</label>
             <input type="text" id="regionInput" placeholder="강남">
@@ -91,64 +83,6 @@
             currentNum++;
             storeNumInput.value = currentNum;
             openBaeminApp();
-        });
-
-        const bizNumInput = document.getElementById('bizNum');
-        const searchBtn = document.getElementById('searchBtn');
-        const resultDiv = document.getElementById('result');
-
-        searchBtn.addEventListener('click', async () => {
-            let bizNum = bizNumInput.value.trim().replace(/-/g, '');
-            
-            if (!bizNum) {
-                showResult('사업자번호를 입력해주세요', 'error');
-                return;
-            }
-            
-            if (bizNum.length !== 10) {
-                showResult('사업자번호는 10자리입니다', 'error');
-                return;
-            }
-            
-            showResult('검색 중...', 'info');
-            
-            try {
-                const targetUrl = `https://ceo-api.yogiyo.co.kr/join/validate-company-number/?company_number=${bizNum}`;
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-                
-                const response = await fetch(proxyUrl);
-                const wrapped = await response.json();
-                const text = wrapped.contents;
-                
-                let data;
-                try {
-                    data = JSON.parse(text);
-                } catch {
-                    showResult('응답 파싱 오류', 'error');
-                    return;
-                }
-                
-                if (data.message && data.message.includes('가능')) {
-                    showResult('✅ 미가입 (가입 가능)', 'success');
-                } else if (data.context?.company_number) {
-                    showResult(`❌ ${data.context.company_number[0]}`, 'fail');
-                } else if (data.code === 'invalid') {
-                    showResult(`❌ ${data.message}`, 'fail');
-                } else {
-                    showResult('알 수 없는 응답', 'info');
-                }
-            } catch (error) {
-                showResult('오류 발생: ' + error.message, 'error');
-            }
-        });
-
-        function showResult(message, className) {
-            resultDiv.innerHTML = message;
-            resultDiv.className = 'result show ' + className;
-        }
-
-        bizNumInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchBtn.click();
         });
 
         const promotionData = {
