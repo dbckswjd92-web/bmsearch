@@ -114,10 +114,11 @@
             
             try {
                 const targetUrl = `https://ceo-api.yogiyo.co.kr/join/validate-company-number/?company_number=${bizNum}`;
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
                 
                 const response = await fetch(proxyUrl);
-                const text = await response.text();
+                const wrapped = await response.json();
+                const text = wrapped.contents;
                 
                 let data;
                 try {
@@ -134,7 +135,7 @@
                 } else if (data.code === 'invalid') {
                     showResult(`❌ ${data.message}`, 'fail');
                 } else {
-                    showResult('알 수 없는 응답: ' + JSON.stringify(data), 'info');
+                    showResult('알 수 없는 응답', 'info');
                 }
             } catch (error) {
                 showResult('오류 발생: ' + error.message, 'error');
