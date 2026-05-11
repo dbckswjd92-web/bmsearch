@@ -26,9 +26,10 @@
         .result.fail { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
         .result.info { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
         .result.error { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
-        .promo-title { font-weight: 600; font-size: 14px; margin-bottom: 8px; }
-        .promo-info { font-size: 12px; line-height: 1.6; text-align: left; }
-        .promo-info strong { font-weight: 600; }
+        .promo-item { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.1); }
+        .promo-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .promo-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+        .promo-desc { font-size: 12px; line-height: 1.5; }
     </style>
 </head>
 <body>
@@ -55,14 +56,13 @@
         <div class="section">
             <h2>지역별 프로모션 (5월)</h2>
             <label>지역 검색 (예: 강남, 강남구)</label>
-            <input type="text" id="regionInput" placeholder="강남구">
+            <input type="text" id="regionInput" placeholder="강남">
             <button id="regionBtn">검색</button>
             <div id="regionResult" class="result"></div>
         </div>
     </div>
 
     <script>
-        // ===== 배민 검색 =====
         const storeNumInput = document.getElementById('storeNum');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
@@ -93,7 +93,6 @@
             openBaeminApp();
         });
 
-        // ===== 요기요 검증 =====
         const bizNumInput = document.getElementById('bizNum');
         const searchBtn = document.getElementById('searchBtn');
         const resultDiv = document.getElementById('result');
@@ -113,31 +112,26 @@
             if (e.key === 'Enter') searchBtn.click();
         });
 
-        // ===== 지역 프로모션 검색 =====
         const promotionData = {
-            // B2B Co-sales 집중영업지역 (13개 구)
             cosales: {
                 regions: ['성동구', '강동구', '광진구', '성북구', '동대문구', '중랑구', '구로구', '양천구', '동작구', '도봉구', '노원구', '강북구', '관악구'],
-                title: 'B2B Co-sales 집중영업지역',
-                info: '<strong>VD:</strong> 3% (~8/31)<br><strong>OD:</strong> 3% + 2,900원 (~8/31)<br><strong>포장:</strong> 3% (~8/31)<br><strong>이후:</strong> 제휴 이용료'
+                name: 'B2B Co-sales 집중영업지역',
+                desc: 'VD 3% / OD 3% + 2,900원 / 포장 3%'
             },
-            // 스페셜 프로모션 (19개 구)
             special: {
                 regions: ['성동구', '강동구', '광진구', '성북구', '동대문구', '중랑구', '구로구', '양천구', '동작구', '도봉구', '노원구', '강북구', '관악구', '강남구', '서초구', '마포구', '용산구', '중구', '종로구'],
-                title: '스페셜 프로모션',
-                info: '<strong>VD:</strong> 7.7% (~8/31) → 9.7% (9/1~)<br><strong>OD:</strong> 3.3% + 3,200원 (~8/31) → 6.7% + 3,200원 (9/1~)<br><strong>포장:</strong> 7.7%'
+                name: '스페셜 프로모션',
+                desc: 'VD 7.7% / OD 3.3% + 3,200원 / 포장 7.7%'
             },
-            // 가게배달 신규입점 프로모션 (9개 군)
             vdPromo: {
                 regions: ['단양군', '괴산군', '태안군', '고성군', '남해군', '산청군', '의령군', '하동군', '합천군'],
-                title: '가게배달 신규입점 프로모션',
-                info: '<strong>VD:</strong> 7.7% (~6/30) → 9.7% (7/1~)<br><strong>포장:</strong> 7.7%<br><strong>※ OD 배달 불가 지역 한정</strong>'
+                name: '가게배달 신규입점 프로모션',
+                desc: 'VD 7.7% / 포장 7.7% (OD 불가지역)'
             },
-            // 신규 입점 프로모션 Plus (경기 용인)
             plus: {
                 regions: ['수지구', '기흥구'],
-                title: '신규 입점 프로모션 Plus',
-                info: '<strong>VD:</strong> 9.7%<br><strong>OD:</strong> 6.7% + 3,100원 (~7/31) → 9.7% + 3,100원 (8/1~)<br><strong>포장:</strong> 7.7%'
+                name: '신규 입점 프로모션 Plus',
+                desc: 'VD 9.7% / OD 6.7% + 3,100원 / 포장 7.7%'
             }
         };
 
@@ -152,9 +146,7 @@
                 return;
             }
 
-            // 구/군 자동 추가
             if (!query.endsWith('구') && !query.endsWith('군')) {
-                // 자동 매칭: 군 단위 먼저 체크
                 const guns = ['단양', '괴산', '태안', '고성', '남해', '산청', '의령', '하동', '합천'];
                 if (guns.includes(query)) {
                     query += '군';
@@ -171,13 +163,15 @@
             }
 
             if (matches.length === 0) {
-                showRegionResult(`<strong>${query}</strong><br><br>해당 지역은 특별 프로모션 대상이 아닙니다.<br><br><strong>📌 일반 신규 입점 프로모션</strong><br><strong>VD:</strong> 9.7%<br><strong>OD:</strong> 6.7% + 2,900원 (~7/31) → 9.7% + 2,900원 (8/1~)<br><strong>포장:</strong> 7.7%`, 'info');
+                let html = `<div class="promo-name">📍 ${query}</div>`;
+                html += `<div class="promo-item"><div class="promo-name">일반 신규입점 프로모션</div><div class="promo-desc">VD 9.7% / OD 6.7% + 2,900원 / 포장 7.7%</div></div>`;
+                showRegionResult(html, 'info');
                 return;
             }
 
-            let html = `<div class="promo-title">📍 ${query}</div>`;
+            let html = `<div style="font-weight:600; margin-bottom:10px;">📍 ${query}</div>`;
             matches.forEach(match => {
-                html += `<div class="promo-info" style="margin-bottom:12px;"><strong>✅ ${match.title}</strong><br>${match.info}</div>`;
+                html += `<div class="promo-item"><div class="promo-name">${match.name}</div><div class="promo-desc">${match.desc}</div></div>`;
             });
 
             showRegionResult(html, 'success');
