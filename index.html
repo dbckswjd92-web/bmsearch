@@ -46,8 +46,8 @@
         </div>
         
         <div class="section">
-            <h2>지역별 프로모션 (5월)</h2>
-            <label>지역 검색 (예: 강남, 강남구)</label>
+            <h2>지역별 프로모션 (7월)</h2>
+            <label>구/군/시 입력 (예: 강남, 강남구)</label>
             <input type="text" id="regionInput" placeholder="강남">
             <button id="regionBtn">검색</button>
             <div id="regionResult" class="result"></div>
@@ -85,26 +85,31 @@
             openBaeminApp();
         });
 
+        // 서울시 25개 구
+        const seoulGus = ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'];
+
+        // 가게배달 신규입점 프로모션 대상 (군/시)
+        const vdRegions = ['담양군', '구례군', '의성군', '봉화군', '영덕군', '군위군', '청송군', '문경시', '울진군', '성주군', '울릉군', '영양군', '합천군', '의령군', '남해군', '하동군'];
+
+        // 신규 입점 프로모션 Plus (수지구/기흥구)
+        const plusRegions = ['수지구', '기흥구'];
+
         const promotionData = {
-            cosales: {
-                regions: ['성동구', '강동구', '광진구', '성북구', '동대문구', '중랑구', '구로구', '양천구', '동작구', '도봉구', '노원구', '강북구', '관악구'],
-                name: 'B2B Co-sales 집중영업지역',
-                desc: '<strong>~ 8/31</strong><br>VD 3% / OD 3% + 2,900원 / 포장 3%<br><br><strong>9/1 ~</strong><br>제휴 이용료 (브랜드별 상이)'
-            },
             special: {
-                regions: ['성동구', '강동구', '광진구', '성북구', '동대문구', '중랑구', '구로구', '양천구', '동작구', '도봉구', '노원구', '강북구', '관악구', '강남구', '서초구', '마포구', '용산구', '중구', '종로구'],
-                name: '스페셜 프로모션',
-                desc: '<strong>~ 8/31</strong><br>VD 7.7% / OD 3.3% + 3,200원 / 포장 7.7%<br><br><strong>9/1 ~</strong><br>VD 9.7% / OD 6.7% + 3,200원 / 포장 7.7%'
+                name: '스페셜 프로모션 (서울)',
+                desc: '<strong>~ 10/31</strong><br>VD 7.7% / OD 3.3% + 3,200원 / 포장 7.7%<br><br><strong>11/1 ~</strong><br>VD 9.7% / OD 6.7% + 3,200원 / 포장 7.7%'
             },
             vdPromo: {
-                regions: ['단양군', '괴산군', '태안군', '고성군', '남해군', '산청군', '의령군', '하동군', '합천군'],
-                name: '가게배달 신규입점 프로모션 (OD 불가지역)',
-                desc: '<strong>~ 6/30</strong><br>VD 7.7% / 포장 7.7%<br><br><strong>7/1 ~</strong><br>VD 9.7% / 포장 7.7%'
+                name: '가게배달 신규입점 프로모션',
+                desc: '<strong>~ 8/31</strong><br>VD 7.7% / 포장 7.7%<br><br><strong>9/1 ~</strong><br>VD 9.7% / 포장 7.7%<br><br>※ OD 배달 불가지역 한정'
             },
             plus: {
-                regions: ['수지구', '기흥구'],
                 name: '신규 입점 프로모션 Plus',
-                desc: '<strong>~ 7/31</strong><br>VD 9.7% / OD 6.7% + 3,100원 / 포장 7.7%<br><br><strong>8/1 ~</strong><br>VD 9.7% / OD 9.7% + 3,100원 / 포장 7.7%'
+                desc: '<strong>~ 9/30</strong><br>VD 9.7% / OD 6.7% + 3,100원 / 포장 7.7%<br><br><strong>10/1 ~</strong><br>VD 9.7% / OD 9.7% + 3,100원 / 포장 7.7%'
+            },
+            normal: {
+                name: '일반 신규입점 프로모션',
+                desc: '<strong>~ 9/30</strong><br>VD 9.7% / OD 6.7% + 2,900원 / 포장 7.7%<br><br><strong>10/1 ~</strong><br>VD 9.7% / OD 9.7% + 2,900원 / 포장 7.7%'
             }
         };
 
@@ -119,27 +124,35 @@
                 return;
             }
 
-            if (!query.endsWith('구') && !query.endsWith('군')) {
-                const guns = ['단양', '괴산', '태안', '고성', '남해', '산청', '의령', '하동', '합천'];
-                if (guns.includes(query)) {
+            // 구/군/시 자동 추가
+            if (!query.endsWith('구') && !query.endsWith('군') && !query.endsWith('시')) {
+                // 시 단위
+                if (query === '문경') {
+                    query += '시';
+                }
+                // 군 단위
+                else if (['담양', '구례', '의성', '봉화', '영덕', '군위', '청송', '울진', '성주', '울릉', '영양', '합천', '의령', '남해', '하동'].includes(query)) {
                     query += '군';
-                } else {
+                }
+                // 기본: 구
+                else {
                     query += '구';
                 }
             }
 
             const matches = [];
-            for (const key in promotionData) {
-                if (promotionData[key].regions.includes(query)) {
-                    matches.push(promotionData[key]);
-                }
-            }
 
+            if (seoulGus.includes(query)) {
+                matches.push(promotionData.special);
+            }
+            if (vdRegions.includes(query)) {
+                matches.push(promotionData.vdPromo);
+            }
+            if (plusRegions.includes(query)) {
+                matches.push(promotionData.plus);
+            }
             if (matches.length === 0) {
-                let html = `<div style="font-weight:600; margin-bottom:10px;">📍 ${query}</div>`;
-                html += `<div class="promo-item"><div class="promo-name">일반 신규입점 프로모션</div><div class="promo-desc"><strong>~ 7/31</strong><br>VD 9.7% / OD 6.7% + 2,900원 / 포장 7.7%<br><br><strong>8/1 ~</strong><br>VD 9.7% / OD 9.7% + 2,900원 / 포장 7.7%</div></div>`;
-                showRegionResult(html, 'info');
-                return;
+                matches.push(promotionData.normal);
             }
 
             let html = `<div style="font-weight:600; margin-bottom:12px;">📍 ${query}</div>`;
@@ -147,7 +160,8 @@
                 html += `<div class="promo-item"><div class="promo-name">${match.name}</div><div class="promo-desc">${match.desc}</div></div>`;
             });
 
-            showRegionResult(html, 'success');
+            const cssClass = matches[0].name.includes('일반') ? 'info' : 'success';
+            showRegionResult(html, cssClass);
         });
 
         function showRegionResult(message, className) {
