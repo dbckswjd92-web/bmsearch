@@ -13,11 +13,12 @@
         label { display: block; font-size: 12px; font-weight: 500; color: #666; margin-bottom: 6px; }
         input[type="number"], input[type="text"] { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; outline: none; font-family: 'Courier New', monospace; margin-bottom: 1rem; }
         input:focus { border-color: #2196F3; }
-        .control-buttons { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-        .nav-btn { flex: 0 0 50px; padding: 12px; font-size: 24px; font-weight: 500; border: 1px solid #ddd; border-radius: 6px; background: white; cursor: pointer; transition: all 0.2s; }
+        .control-buttons { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .nav-btn { flex: 1; padding: 14px 8px; font-size: 14px; font-weight: 600; border: 1px solid #ddd; border-radius: 6px; background: white; cursor: pointer; transition: all 0.2s; }
         .nav-btn:hover { background: #f5f5f5; }
         .nav-btn:active { transform: scale(0.95); }
-        .instruction-text { flex: 1; text-align: center; font-size: 12px; color: #666; line-height: 1.5; }
+        .open-btn { background: #2196F3; color: white; border-color: #2196F3; }
+        .open-btn:hover { background: #1976D2; }
         button { width: 100%; padding: 10px 12px; background: white; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
         button:hover { background: #f5f5f5; }
         .result { margin-top: 1rem; padding: 12px; border-radius: 6px; font-size: 13px; display: none; }
@@ -39,9 +40,9 @@
             <label>번호 입력</label>
             <input type="number" id="storeNum" placeholder="14850643">
             <div class="control-buttons">
-                <button id="prevBtn" class="nav-btn">−</button>
-                <div class="instruction-text">위 번호대로<br>배민열리고<br>숫자증감(+,−)</div>
-                <button id="nextBtn" class="nav-btn">+</button>
+                <button id="prevBtn" class="nav-btn">− 1</button>
+                <button id="openBtn" class="nav-btn open-btn">열기</button>
+                <button id="nextBtn" class="nav-btn">+ 1</button>
             </div>
         </div>
         
@@ -58,6 +59,7 @@
         const storeNumInput = document.getElementById('storeNum');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
+        const openBtn = document.getElementById('openBtn');
         let currentNum = 0;
 
         function openBaeminApp() {
@@ -71,27 +73,31 @@
             if (!isNaN(num)) currentNum = num;
         });
 
+        openBtn.addEventListener('click', () => {
+            const num = parseInt(storeNumInput.value);
+            if (isNaN(num)) { alert('번호를 입력해주세요'); return; }
+            currentNum = num;
+            openBaeminApp();
+        });
+
         prevBtn.addEventListener('click', () => {
-            if (currentNum === 0) { alert('번호를 입력해주세요'); return; }
-            currentNum--;
+            const num = parseInt(storeNumInput.value);
+            if (isNaN(num)) { alert('번호를 입력해주세요'); return; }
+            currentNum = num - 1;
             storeNumInput.value = currentNum;
             openBaeminApp();
         });
 
         nextBtn.addEventListener('click', () => {
-            if (currentNum === 0) { alert('번호를 입력해주세요'); return; }
-            currentNum++;
+            const num = parseInt(storeNumInput.value);
+            if (isNaN(num)) { alert('번호를 입력해주세요'); return; }
+            currentNum = num + 1;
             storeNumInput.value = currentNum;
             openBaeminApp();
         });
 
-        // 서울시 25개 구
         const seoulGus = ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'];
-
-        // 가게배달 신규입점 프로모션 대상 (군/시)
         const vdRegions = ['담양군', '구례군', '의성군', '봉화군', '영덕군', '군위군', '청송군', '문경시', '울진군', '성주군', '울릉군', '영양군', '합천군', '의령군', '남해군', '하동군'];
-
-        // 신규 입점 프로모션 Plus (수지구/기흥구)
         const plusRegions = ['수지구', '기흥구'];
 
         const promotionData = {
@@ -124,18 +130,12 @@
                 return;
             }
 
-            // 구/군/시 자동 추가
             if (!query.endsWith('구') && !query.endsWith('군') && !query.endsWith('시')) {
-                // 시 단위
                 if (query === '문경') {
                     query += '시';
-                }
-                // 군 단위
-                else if (['담양', '구례', '의성', '봉화', '영덕', '군위', '청송', '울진', '성주', '울릉', '영양', '합천', '의령', '남해', '하동'].includes(query)) {
+                } else if (['담양', '구례', '의성', '봉화', '영덕', '군위', '청송', '울진', '성주', '울릉', '영양', '합천', '의령', '남해', '하동'].includes(query)) {
                     query += '군';
-                }
-                // 기본: 구
-                else {
+                } else {
                     query += '구';
                 }
             }
