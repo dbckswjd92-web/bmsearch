@@ -27,10 +27,14 @@
         .result.fail { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
         .result.info { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
         .result.error { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
-        .promo-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.15); }
-        .promo-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        .promo-name { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
-        .promo-desc { font-size: 12px; line-height: 1.6; }
+        .item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.15); }
+        .item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .item-name { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+        .item-desc { font-size: 12px; line-height: 1.6; }
+        .badge-banned { display: inline-block; background: #c62828; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 6px; }
+        .badge-cosales { display: inline-block; background: #2e7d32; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 6px; }
+        .brand-info { font-size: 11px; color: #555; margin-top: 4px; line-height: 1.5; }
+        .brand-info strong { color: #333; }
     </style>
 </head>
 <body>
@@ -47,7 +51,15 @@
         </div>
         
         <div class="section">
-            <h2>지역별 프로모션 (7월)</h2>
+            <h2>브랜드 검색 (B2B)</h2>
+            <label>브랜드명 입력 (예: 원할머니, 돈까스)</label>
+            <input type="text" id="brandInput" placeholder="원할머니">
+            <button id="brandBtn">검색</button>
+            <div id="brandResult" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h2>지역별 프로모션 (8월)</h2>
             <label>구/군/시 입력 (예: 강남, 강남구)</label>
             <input type="text" id="regionInput" placeholder="강남">
             <button id="regionBtn">검색</button>
@@ -55,7 +67,9 @@
         </div>
     </div>
 
+    <script src="brands.js"></script>
     <script>
+        // ===== 배민 매장 검색 =====
         const storeNumInput = document.getElementById('storeNum');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
@@ -96,26 +110,100 @@
             openBaeminApp();
         });
 
+        // ===== 브랜드 검색 =====
+        const brandInput = document.getElementById('brandInput');
+        const brandBtn = document.getElementById('brandBtn');
+        const brandResultDiv = document.getElementById('brandResult');
+
+        brandBtn.addEventListener('click', () => {
+            const query = brandInput.value.trim();
+            if (!query) {
+                showBrandResult('브랜드명을 입력해주세요', 'error');
+                return;
+            }
+
+            // 영업 불가 브랜드 검색
+            const bannedMatches = BRAND_DATA.banned.filter(b => 
+                b.brand.includes(query) || b.corp.includes(query)
+            );
+
+            // Co-sales 브랜드 검색
+            const cosalesMatches = BRAND_DATA.cosales.filter(b => 
+                b.brand.includes(query)
+            );
+
+            if (bannedMatches.length === 0 && cosalesMatches.length === 0) {
+                showBrandResult(`<div style="font-weight:600; margin-bottom:8px;">🔍 "${query}"</div>검색 결과가 없습니다.<br><br>일반 B2C 신규입점 계약 가능`, 'info');
+                return;
+            }
+
+            let html = `<div style="font-weight:600; margin-bottom:12px;">🔍 "${query}" (${bannedMatches.length + cosalesMatches.length}개)</div>`;
+
+            // 영업 불가 브랜드 표시
+            bannedMatches.forEach(b => {
+                html += `<div class="item">
+                    <div class="item-name">
+                        <span class="badge-banned">영업불가</span>${b.brand}
+                    </div>
+                    <div class="brand-info">${b.corp}</div>
+                </div>`;
+            });
+
+            // Co-sales 브랜드 표시
+            cosalesMatches.forEach(b => {
+                html += `<div class="item">
+                    <div class="item-name">
+                        <span class="badge-cosales">Co-sales</span>${b.brand}
+                    </div>
+                    <div class="brand-info">
+                        <strong>카테고리:</strong> ${b.category}<br>
+                        <strong>서비스:</strong> ${b.service}<br>
+                        <strong>이용료:</strong> VD ${(parseFloat(b.vd)*100).toFixed(1)}% / TO ${(parseFloat(b.to)*100).toFixed(1)}% / OD ${b.od}<br>
+                        <strong>리드 외:</strong> ${b.lead_out} | <strong>포장단독:</strong> ${b.takeout}<br>
+                        <strong>가게쿠폰:</strong> ${b.coupon} | <strong>추천광고:</strong> ${b.ad} | <strong>할인랭킹:</strong> ${b.rank}<br>
+                        <strong>템플릿:</strong> ${b.package}
+                    </div>
+                </div>`;
+            });
+
+            const cssClass = bannedMatches.length > 0 ? 'fail' : 'success';
+            showBrandResult(html, cssClass);
+        });
+
+        function showBrandResult(message, className) {
+            brandResultDiv.innerHTML = message;
+            brandResultDiv.className = 'result show ' + className;
+        }
+
+        brandInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') brandBtn.click();
+        });
+
+        // ===== 지역별 프로모션 (8월) =====
         const seoulGus = ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'];
-        const vdRegions = ['담양군', '구례군', '의성군', '봉화군', '영덕군', '군위군', '청송군', '문경시', '울진군', '성주군', '울릉군', '영양군', '합천군', '의령군', '남해군', '하동군'];
-        const plusRegions = ['수지구', '기흥구'];
+        
+        // 신규 입점 프로모션 Plus - 경기 일부
+        const plusRegions = ['수지구', '기흥구', '의정부시', '남양주시', '하남시', '부천시'];
+        
+        // 웰컴 프로모션 지역 (시도 이름)
+        const welcomeSido = ['세종', '부산', '울산', '대전', '대구', '광주', '충남', '충북', '전남', '전북', '경남', '경북', '강원', '제주'];
 
         const promotionData = {
             special: {
                 name: '스페셜 프로모션 (서울)',
-                desc: '<strong>~ 10/31</strong><br>VD 7.7% / OD 3.3% + 3,200원 / 포장 7.7%<br><br><strong>11/1 ~</strong><br>VD 9.7% / OD 6.7% + 3,200원 / 포장 7.7%'
+                desc: '<strong>~ 11/30</strong><br>VD 7.7% / OD 3.3% + 3,200원 / 포장 7.7%<br><br><strong>12/1 ~</strong><br>VD 9.7% / OD 6.7% + 3,200원 / 포장 7.7%'
             },
-            vdPromo: {
-                name: '가게배달 신규입점 프로모션',
-                desc: '<strong>~ 8/31</strong><br>VD 7.7% / 포장 7.7%<br><br><strong>9/1 ~</strong><br>VD 9.7% / 포장 7.7%<br><br>※ OD 배달 불가지역 한정'
+            newEntry: {
+                name: '신규 입점 프로모션 (경기, 인천)',
+                desc: '<strong>VD:</strong> 9.7%<br><strong>OD:</strong> 6.7% + 2,900원 (~10/31) → 9.7% + 2,900원 (11/1~)<br><strong>포장:</strong> 7.7%'
             },
             plus: {
                 name: '신규 입점 프로모션 Plus',
-                desc: '<strong>~ 9/30</strong><br>VD 9.7% / OD 6.7% + 3,100원 / 포장 7.7%<br><br><strong>10/1 ~</strong><br>VD 9.7% / OD 9.7% + 3,100원 / 포장 7.7%'
+                desc: '<strong>대상:</strong> 용인 수지/기흥, 의정부, 남양주, 하남, 부천<br><br><strong>VD:</strong> 9.7%<br><strong>OD:</strong> 5.7% + 3,100원 (~10/31) → 9.7% + 3,100원 (11/1~)<br><strong>포장:</strong> 7.7%'
             },
-            normal: {
-                name: '일반 신규입점 프로모션',
-                desc: '<strong>~ 9/30</strong><br>VD 9.7% / OD 6.7% + 2,900원 / 포장 7.7%<br><br><strong>10/1 ~</strong><br>VD 9.7% / OD 9.7% + 2,900원 / 포장 7.7%'
+            welcome: {
+                name: '웰컴 프로모션 (그 외 지역)',
+                desc: '<strong>VD:</strong> 6.7% (~10/31) → 9.7% (11/1~)<br><strong>OD:</strong> 6.7% + 2,900원 (~10/31) → 9.7% + 2,900원 (11/1~)<br><strong>포장:</strong> 7.7%'
             }
         };
 
@@ -130,38 +218,45 @@
                 return;
             }
 
+            const originalQuery = query;
+
+            // 시도 검색 (웰컴 프로모션)
+            const isSido = welcomeSido.some(s => query.includes(s));
+
+            // 구/군/시 자동 추가
             if (!query.endsWith('구') && !query.endsWith('군') && !query.endsWith('시')) {
-                if (query === '문경') {
+                if (['의정부', '남양주', '하남', '부천'].includes(query)) {
                     query += '시';
-                } else if (['담양', '구례', '의성', '봉화', '영덕', '군위', '청송', '울진', '성주', '울릉', '영양', '합천', '의령', '남해', '하동'].includes(query)) {
-                    query += '군';
+                } else if (isSido) {
+                    // 시도 이름은 그대로
                 } else {
                     query += '구';
                 }
             }
 
-            const matches = [];
+            let match = null;
 
+            // 1. 서울 스페셜 프로모션
             if (seoulGus.includes(query)) {
-                matches.push(promotionData.special);
+                match = promotionData.special;
             }
-            if (vdRegions.includes(query)) {
-                matches.push(promotionData.vdPromo);
+            // 2. 신규 입점 Plus (경기 일부)
+            else if (plusRegions.includes(query)) {
+                match = promotionData.plus;
             }
-            if (plusRegions.includes(query)) {
-                matches.push(promotionData.plus);
+            // 3. 웰컴 프로모션 (기타 지역)
+            else if (isSido) {
+                match = promotionData.welcome;
             }
-            if (matches.length === 0) {
-                matches.push(promotionData.normal);
+            // 4. 신규 입점 (경기, 인천)
+            else {
+                match = promotionData.newEntry;
             }
 
             let html = `<div style="font-weight:600; margin-bottom:12px;">📍 ${query}</div>`;
-            matches.forEach(match => {
-                html += `<div class="promo-item"><div class="promo-name">${match.name}</div><div class="promo-desc">${match.desc}</div></div>`;
-            });
+            html += `<div class="item"><div class="item-name">${match.name}</div><div class="item-desc">${match.desc}</div></div>`;
 
-            const cssClass = matches[0].name.includes('일반') ? 'info' : 'success';
-            showRegionResult(html, cssClass);
+            showRegionResult(html, 'success');
         });
 
         function showRegionResult(message, className) {
