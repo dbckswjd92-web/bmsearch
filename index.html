@@ -59,7 +59,7 @@
         </div>
         
         <div class="section">
-            <h2>지역별 프로모션 (8월)</h2>
+            <h2>지역별 프로모션 (9월)</h2>
             <label>구/군/시 입력 (예: 강남, 강남구)</label>
             <input type="text" id="regionInput" placeholder="강남">
             <button id="regionBtn">검색</button>
@@ -122,12 +122,10 @@
                 return;
             }
 
-            // 영업 불가 브랜드 검색
             const bannedMatches = BRAND_DATA.banned.filter(b => 
                 b.brand.includes(query) || b.corp.includes(query)
             );
 
-            // Co-sales 브랜드 검색
             const cosalesMatches = BRAND_DATA.cosales.filter(b => 
                 b.brand.includes(query)
             );
@@ -139,7 +137,6 @@
 
             let html = `<div style="font-weight:600; margin-bottom:12px;">🔍 "${query}" (${bannedMatches.length + cosalesMatches.length}개)</div>`;
 
-            // 영업 불가 브랜드 표시
             bannedMatches.forEach(b => {
                 html += `<div class="item">
                     <div class="item-name">
@@ -149,7 +146,6 @@
                 </div>`;
             });
 
-            // Co-sales 브랜드 표시
             cosalesMatches.forEach(b => {
                 html += `<div class="item">
                     <div class="item-name">
@@ -179,11 +175,11 @@
             if (e.key === 'Enter') brandBtn.click();
         });
 
-        // ===== 지역별 프로모션 (8월) =====
+        // ===== 지역별 프로모션 (9월) =====
         const seoulGus = ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'];
         
-        // 신규 입점 프로모션 Plus - 경기 일부
-        const plusRegions = ['수지구', '기흥구', '의정부시', '남양주시', '하남시', '부천시'];
+        // 신규 입점 프로모션 (경기 4개 시)
+        const newEntryRegions = ['여주시', '포천시', '안성시', '동두천시'];
         
         // 웰컴 프로모션 지역 (시도 이름)
         const welcomeSido = ['세종', '부산', '울산', '대전', '대구', '광주', '충남', '충북', '전남', '전북', '경남', '경북', '강원', '제주'];
@@ -191,19 +187,19 @@
         const promotionData = {
             special: {
                 name: '스페셜 프로모션 (서울)',
-                desc: '<strong>~ 11/30</strong><br>VD 7.7% / OD 3.3% + 3,200원 / 포장 7.7%<br><br><strong>12/1 ~</strong><br>VD 9.7% / OD 6.7% + 3,200원 / 포장 7.7%'
+                desc: '<strong>~ 12/31</strong><br>VD 7.7% / OD 3.3% + 3,200원 / 포장 7.7%<br><br><strong>1/1 ~</strong><br>VD 9.7% / OD 6.7% + 3,200원 / 포장 7.7%'
             },
             newEntry: {
-                name: '신규 입점 프로모션 (경기, 인천)',
-                desc: '<strong>VD:</strong> 9.7%<br><strong>OD:</strong> 6.7% + 2,900원 (~10/31) → 9.7% + 2,900원 (11/1~)<br><strong>포장:</strong> 7.7%'
+                name: '신규 입점 프로모션 (경기 4개시)',
+                desc: '<strong>대상:</strong> 여주, 포천, 안성, 동두천<br><br><strong>VD:</strong> 9.7%<br><strong>OD:</strong> 6.7% + 2,900원 (~11/30) → 9.7% + 2,900원 (12/1~)<br><strong>포장:</strong> 7.7%'
             },
             plus: {
-                name: '신규 입점 프로모션 Plus',
-                desc: '<strong>대상:</strong> 용인 수지/기흥, 의정부, 남양주, 하남, 부천<br><br><strong>VD:</strong> 9.7%<br><strong>OD:</strong> 5.7% + 3,100원 (~10/31) → 9.7% + 3,100원 (11/1~)<br><strong>포장:</strong> 7.7%'
+                name: '신규 입점 프로모션 Plus (경기/인천)',
+                desc: '<strong>대상:</strong> 경기, 인천 전체 (여주/포천/안성/동두천 제외)<br><br><strong>VD:</strong> 9.7%<br><strong>OD:</strong> 5.7% + 3,100원 (~11/30) → 9.7% + 3,100원 (12/1~)<br><strong>포장:</strong> 7.7%'
             },
             welcome: {
-                name: '웰컴 프로모션 (그 외 지역)',
-                desc: '<strong>VD:</strong> 6.7% (~10/31) → 9.7% (11/1~)<br><strong>OD:</strong> 6.7% + 2,900원 (~10/31) → 9.7% + 2,900원 (11/1~)<br><strong>포장:</strong> 7.7%'
+                name: '웰컴 프로모션 (지방)',
+                desc: '<strong>VD:</strong> 6.7% (~11/30) → 9.7% (12/1~)<br><strong>OD:</strong> 6.7% + 2,900원 (~11/30) → 9.7% + 2,900원 (12/1~)<br><strong>포장:</strong> 7.7%'
             }
         };
 
@@ -218,14 +214,12 @@
                 return;
             }
 
-            const originalQuery = query;
-
             // 시도 검색 (웰컴 프로모션)
             const isSido = welcomeSido.some(s => query.includes(s));
 
             // 구/군/시 자동 추가
             if (!query.endsWith('구') && !query.endsWith('군') && !query.endsWith('시')) {
-                if (['의정부', '남양주', '하남', '부천'].includes(query)) {
+                if (['여주', '포천', '안성', '동두천'].includes(query)) {
                     query += '시';
                 } else if (isSido) {
                     // 시도 이름은 그대로
@@ -240,17 +234,17 @@
             if (seoulGus.includes(query)) {
                 match = promotionData.special;
             }
-            // 2. 신규 입점 Plus (경기 일부)
-            else if (plusRegions.includes(query)) {
-                match = promotionData.plus;
+            // 2. 신규 입점 (경기 4개시)
+            else if (newEntryRegions.includes(query)) {
+                match = promotionData.newEntry;
             }
-            // 3. 웰컴 프로모션 (기타 지역)
+            // 3. 웰컴 프로모션 (지방)
             else if (isSido) {
                 match = promotionData.welcome;
             }
-            // 4. 신규 입점 (경기, 인천)
+            // 4. 나머지 (경기, 인천) - Plus
             else {
-                match = promotionData.newEntry;
+                match = promotionData.plus;
             }
 
             let html = `<div style="font-weight:600; margin-bottom:12px;">📍 ${query}</div>`;
