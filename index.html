@@ -27,6 +27,7 @@
         .result.fail { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
         .result.info { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
         .result.error { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+        .result.warning { background: #fffde7; color: #f57f17; border: 1px solid #fff59d; }
         .item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.15); }
         .item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .item-name { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
@@ -35,6 +36,9 @@
         .badge-cosales { display: inline-block; background: #2e7d32; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 6px; }
         .brand-info { font-size: 11px; color: #555; margin-top: 4px; line-height: 1.5; }
         .brand-info strong { color: #333; }
+        .sido-select { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .sido-btn { padding: 6px 12px; font-size: 12px; border: 1px solid #2196F3; border-radius: 4px; background: white; color: #2196F3; cursor: pointer; width: auto; }
+        .sido-btn:hover { background: #2196F3; color: white; }
     </style>
 </head>
 <body>
@@ -60,7 +64,7 @@
         
         <div class="section">
             <h2>지역별 프로모션 (9월)</h2>
-            <label>구/군/시 입력 (예: 강남, 강남구)</label>
+            <label>구/군/시 입력 (예: 강남, 춘천, 수원)</label>
             <input type="text" id="regionInput" placeholder="강남">
             <button id="regionBtn">검색</button>
             <div id="regionResult" class="result"></div>
@@ -68,6 +72,7 @@
     </div>
 
     <script src="brands.js"></script>
+    <script src="regions.js"></script>
     <script>
         // ===== 배민 매장 검색 =====
         const storeNumInput = document.getElementById('storeNum');
@@ -176,13 +181,10 @@
         });
 
         // ===== 지역별 프로모션 (9월) =====
-        const seoulGus = ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'];
-        
-        // 신규 입점 프로모션 (경기 4개 시)
         const newEntryRegions = ['여주시', '포천시', '안성시', '동두천시'];
-        
-        // 웰컴 프로모션 지역 (시도 이름)
-        const welcomeSido = ['세종', '부산', '울산', '대전', '대구', '광주', '충남', '충북', '전남', '전북', '경남', '경북', '강원', '제주'];
+        const welcomeSidos = ['세종', '부산', '울산', '대전', '대구', '광주', '충남', '충북', '전남', '전북', '경남', '경북', '강원', '제주'];
+        const specialSidos = ['서울'];
+        const plusSidos = ['경기', '인천'];
 
         const promotionData = {
             special: {
@@ -203,6 +205,33 @@
             }
         };
 
+        function getPromotionBySido(sido) {
+            if (specialSidos.includes(sido)) return promotionData.special;
+            if (plusSidos.includes(sido)) return promotionData.plus;
+            if (welcomeSidos.includes(sido)) return promotionData.welcome;
+            return null;
+        }
+
+        function showPromotion(region, sido) {
+            // 신규 입점 프로모션 (경기 4개시) 우선 체크
+            if (newEntryRegions.includes(region) && sido === '경기') {
+                let html = `<div style="font-weight:600; margin-bottom:12px;">📍 ${sido} ${region}</div>`;
+                html += `<div class="item"><div class="item-name">${promotionData.newEntry.name}</div><div class="item-desc">${promotionData.newEntry.desc}</div></div>`;
+                showRegionResult(html, 'success');
+                return;
+            }
+
+            const promo = getPromotionBySido(sido);
+            if (!promo) {
+                showRegionResult(`검색된 지역: ${sido} ${region}<br>일반 신규입점 계약`, 'info');
+                return;
+            }
+
+            let html = `<div style="font-weight:600; margin-bottom:12px;">📍 ${sido} ${region}</div>`;
+            html += `<div class="item"><div class="item-name">${promo.name}</div><div class="item-desc">${promo.desc}</div></div>`;
+            showRegionResult(html, 'success');
+        }
+
         const regionInput = document.getElementById('regionInput');
         const regionBtn = document.getElementById('regionBtn');
         const regionResultDiv = document.getElementById('regionResult');
@@ -214,44 +243,51 @@
                 return;
             }
 
-            // 시도 검색 (웰컴 프로모션)
-            const isSido = welcomeSido.some(s => query.includes(s));
+            // 1. 접미사 없이 입력한 경우, 접미사 붙여서 여러 형태로 시도
+            let candidates = [];
+            if (query.endsWith('구') || query.endsWith('군') || query.endsWith('시')) {
+                candidates = [query];
+            } else {
+                candidates = [query + '구', query + '군', query + '시'];
+            }
 
-            // 구/군/시 자동 추가
-            if (!query.endsWith('구') && !query.endsWith('군') && !query.endsWith('시')) {
-                if (['여주', '포천', '안성', '동두천'].includes(query)) {
-                    query += '시';
-                } else if (isSido) {
-                    // 시도 이름은 그대로
-                } else {
-                    query += '구';
+            // 매칭되는 지역 찾기
+            let foundRegion = null;
+            let foundSidos = [];
+            for (const candidate of candidates) {
+                if (REGION_TO_SIDOS[candidate]) {
+                    foundRegion = candidate;
+                    foundSidos = REGION_TO_SIDOS[candidate];
+                    break;
                 }
             }
 
-            let match = null;
-
-            // 1. 서울 스페셜 프로모션
-            if (seoulGus.includes(query)) {
-                match = promotionData.special;
-            }
-            // 2. 신규 입점 (경기 4개시)
-            else if (newEntryRegions.includes(query)) {
-                match = promotionData.newEntry;
-            }
-            // 3. 웰컴 프로모션 (지방)
-            else if (isSido) {
-                match = promotionData.welcome;
-            }
-            // 4. 나머지 (경기, 인천) - Plus
-            else {
-                match = promotionData.plus;
+            // 못 찾은 경우
+            if (!foundRegion) {
+                showRegionResult(`"${query}" 지역을 찾을 수 없습니다.<br>구/군/시 이름을 정확히 입력해주세요.`, 'error');
+                return;
             }
 
-            let html = `<div style="font-weight:600; margin-bottom:12px;">📍 ${query}</div>`;
-            html += `<div class="item"><div class="item-name">${match.name}</div><div class="item-desc">${match.desc}</div></div>`;
+            // 시도가 하나면 바로 표시
+            if (foundSidos.length === 1) {
+                showPromotion(foundRegion, foundSidos[0]);
+                return;
+            }
 
-            showRegionResult(html, 'success');
+            // 시도가 여러 개면 선택 버튼 표시
+            let html = `<div style="font-weight:600; margin-bottom:8px;">"${foundRegion}"이(가) 여러 지역에 있습니다.</div>`;
+            html += `<div style="font-size:12px; margin-bottom:8px;">어느 지역인가요?</div>`;
+            html += `<div class="sido-select">`;
+            foundSidos.forEach(sido => {
+                html += `<button class="sido-btn" onclick="selectSido('${foundRegion}', '${sido}')">${sido} ${foundRegion}</button>`;
+            });
+            html += `</div>`;
+            showRegionResult(html, 'warning');
         });
+
+        function selectSido(region, sido) {
+            showPromotion(region, sido);
+        }
 
         function showRegionResult(message, className) {
             regionResultDiv.innerHTML = message;
