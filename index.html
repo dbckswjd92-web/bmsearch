@@ -63,7 +63,7 @@
         </div>
         
         <div class="section">
-            <h2>지역별 프로모션 (9월)</h2>
+            <h2>지역별 프로모션 (10월)</h2>
             <label>구/군/시 입력 (예: 강남, 춘천, 수원)</label>
             <input type="text" id="regionInput" placeholder="강남">
             <button id="regionBtn">검색</button>
@@ -74,7 +74,6 @@
     <script src="brands.js"></script>
     <script src="regions.js"></script>
     <script>
-        // ===== 배민 매장 검색 =====
         const storeNumInput = document.getElementById('storeNum');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
@@ -115,7 +114,6 @@
             openBaeminApp();
         });
 
-        // ===== 브랜드 검색 =====
         const brandInput = document.getElementById('brandInput');
         const brandBtn = document.getElementById('brandBtn');
         const brandResultDiv = document.getElementById('brandResult');
@@ -180,7 +178,7 @@
             if (e.key === 'Enter') brandBtn.click();
         });
 
-        // ===== 지역별 프로모션 (9월) =====
+        // ===== 지역별 프로모션 (10월) =====
         const newEntryRegions = ['여주시', '포천시', '안성시', '동두천시'];
         const welcomeSidos = ['세종', '부산', '울산', '대전', '대구', '광주', '충남', '충북', '전남', '전북', '경남', '경북', '강원', '제주'];
         const specialSidos = ['서울'];
@@ -189,19 +187,19 @@
         const promotionData = {
             special: {
                 name: '스페셜 프로모션 (서울)',
-                desc: '<strong>~ 12/31</strong><br>VD 7.7% / OD 3.3% + 3,200원 / 포장 7.7%<br><br><strong>1/1 ~</strong><br>VD 9.7% / OD 6.7% + 3,200원 / 포장 7.7%'
+                desc: '<strong>~ 1/31</strong><br>VD 7.7% / OD 4.7% + 3,200원 / 포장 7.7%<br><br><strong>2/1 ~</strong><br>VD 9.7% / OD 6.7% + 3,200원 / 포장 7.7%'
             },
             newEntry: {
                 name: '신규 입점 프로모션 (경기 4개시)',
-                desc: '<strong>대상:</strong> 여주, 포천, 안성, 동두천<br><br><strong>VD:</strong> 9.7%<br><strong>OD:</strong> 6.7% + 2,900원 (~11/30) → 9.7% + 2,900원 (12/1~)<br><strong>포장:</strong> 7.7%'
+                desc: '<strong>대상:</strong> 여주, 포천, 안성, 동두천<br><br><strong>VD:</strong> 9.7%<br><strong>OD:</strong> 6.7% + 2,900원 (~12/31) → 9.7% + 2,900원 (1/1~)<br><strong>포장:</strong> 7.7%'
             },
             plus: {
                 name: '신규 입점 프로모션 Plus (경기/인천)',
-                desc: '<strong>대상:</strong> 경기, 인천 전체 (여주/포천/안성/동두천 제외)<br><br><strong>VD:</strong> 9.7%<br><strong>OD:</strong> 5.7% + 3,100원 (~11/30) → 9.7% + 3,100원 (12/1~)<br><strong>포장:</strong> 7.7%'
+                desc: '<strong>대상:</strong> 경기, 인천 전체 (여주/포천/안성/동두천 제외)<br><br><strong>VD:</strong> 9.7%<br><strong>OD:</strong> 5.7% + 3,100원 (~12/31) → 9.7% + 3,100원 (1/1~)<br><strong>포장:</strong> 7.7%'
             },
             welcome: {
                 name: '웰컴 프로모션 (지방)',
-                desc: '<strong>VD:</strong> 6.7% (~11/30) → 9.7% (12/1~)<br><strong>OD:</strong> 6.7% + 2,900원 (~11/30) → 9.7% + 2,900원 (12/1~)<br><strong>포장:</strong> 7.7%'
+                desc: '<strong>VD:</strong> 6.7% (~12/31) → 9.7% (1/1~)<br><strong>OD:</strong> 6.7% + 2,900원 (~12/31) → 9.7% + 2,900원 (1/1~)<br><strong>포장:</strong> 7.7%'
             }
         };
 
@@ -213,7 +211,6 @@
         }
 
         function showPromotion(region, sido) {
-            // 신규 입점 프로모션 (경기 4개시) 우선 체크
             if (newEntryRegions.includes(region) && sido === '경기') {
                 let html = `<div style="font-weight:600; margin-bottom:12px;">📍 ${sido} ${region}</div>`;
                 html += `<div class="item"><div class="item-name">${promotionData.newEntry.name}</div><div class="item-desc">${promotionData.newEntry.desc}</div></div>`;
@@ -243,7 +240,6 @@
                 return;
             }
 
-            // 1. 접미사 없이 입력한 경우, 접미사 붙여서 여러 형태로 시도
             let candidates = [];
             if (query.endsWith('구') || query.endsWith('군') || query.endsWith('시')) {
                 candidates = [query];
@@ -251,7 +247,6 @@
                 candidates = [query + '구', query + '군', query + '시'];
             }
 
-            // 매칭되는 지역 찾기
             let foundRegion = null;
             let foundSidos = [];
             for (const candidate of candidates) {
@@ -262,19 +257,16 @@
                 }
             }
 
-            // 못 찾은 경우
             if (!foundRegion) {
                 showRegionResult(`"${query}" 지역을 찾을 수 없습니다.<br>구/군/시 이름을 정확히 입력해주세요.`, 'error');
                 return;
             }
 
-            // 시도가 하나면 바로 표시
             if (foundSidos.length === 1) {
                 showPromotion(foundRegion, foundSidos[0]);
                 return;
             }
 
-            // 시도가 여러 개면 선택 버튼 표시
             let html = `<div style="font-weight:600; margin-bottom:8px;">"${foundRegion}"이(가) 여러 지역에 있습니다.</div>`;
             html += `<div style="font-size:12px; margin-bottom:8px;">어느 지역인가요?</div>`;
             html += `<div class="sido-select">`;
