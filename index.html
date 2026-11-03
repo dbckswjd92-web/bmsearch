@@ -34,7 +34,8 @@
         .item-desc { font-size: 12px; line-height: 1.6; }
         .badge-banned { display: inline-block; background: #c62828; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 6px; }
         .badge-cosales { display: inline-block; background: #2e7d32; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 6px; }
-        .brand-info { font-size: 11px; color: #555; margin-top: 4px; line-height: 1.5; }
+        .badge-pos { display: inline-block; background: #ff6b35; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; margin-left: 4px; }
+        .brand-info { font-size: 11px; color: #555; margin-top: 4px; line-height: 1.6; }
         .brand-info strong { color: #333; }
         .sido-select { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
         .sido-btn { padding: 6px 12px; font-size: 12px; border: 1px solid #2196F3; border-radius: 4px; background: white; color: #2196F3; cursor: pointer; width: auto; }
@@ -56,7 +57,7 @@
         
         <div class="section">
             <h2>브랜드 검색 (B2B)</h2>
-            <label>브랜드명 입력 (예: 원할머니, 돈까스)</label>
+            <label>브랜드명/법인명 입력 (예: 원할머니, 돈까스)</label>
             <input type="text" id="brandInput" placeholder="원할머니">
             <button id="brandBtn">검색</button>
             <div id="brandResult" class="result"></div>
@@ -64,7 +65,7 @@
         
         <div class="section">
             <h2>지역별 프로모션 (11월)</h2>
-            <label>구/군/시 입력 (예: 강남, 춘천, 수원)</label>
+            <label>구/군/시 입력 (예: 강남, 춘천, 구리)</label>
             <input type="text" id="regionInput" placeholder="강남">
             <button id="regionBtn">검색</button>
             <div id="regionResult" class="result"></div>
@@ -74,6 +75,7 @@
     <script src="brands.js"></script>
     <script src="regions.js"></script>
     <script>
+        // ===== 배민 매장 검색 =====
         const storeNumInput = document.getElementById('storeNum');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
@@ -114,9 +116,17 @@
             openBaeminApp();
         });
 
+        // ===== 브랜드 검색 =====
         const brandInput = document.getElementById('brandInput');
         const brandBtn = document.getElementById('brandBtn');
         const brandResultDiv = document.getElementById('brandResult');
+
+        function formatRate(val) {
+            if (val === '-' || !val) return '-';
+            const num = parseFloat(val);
+            if (isNaN(num)) return val;
+            return (num * 100).toFixed(1) + '%';
+        }
 
         brandBtn.addEventListener('click', () => {
             const query = brandInput.value.trim();
@@ -130,7 +140,7 @@
             );
 
             const cosalesMatches = BRAND_DATA.cosales.filter(b => 
-                b.brand.includes(query)
+                b.brand.includes(query) || b.corp.includes(query)
             );
 
             if (bannedMatches.length === 0 && cosalesMatches.length === 0) {
@@ -150,17 +160,22 @@
             });
 
             cosalesMatches.forEach(b => {
+                const posTag = b.pos_required === 'Y' ? '<span class="badge-pos">POS필수</span>' : '';
                 html += `<div class="item">
                     <div class="item-name">
-                        <span class="badge-cosales">Co-sales</span>${b.brand}
+                        <span class="badge-cosales">Co-sales</span>${b.brand}${posTag}
                     </div>
                     <div class="brand-info">
+                        <strong>법인명:</strong> ${b.corp}<br>
                         <strong>카테고리:</strong> ${b.category}<br>
-                        <strong>서비스:</strong> ${b.service}<br>
-                        <strong>이용료:</strong> VD ${(parseFloat(b.vd)*100).toFixed(1)}% / TO ${(parseFloat(b.to)*100).toFixed(1)}% / OD ${b.od}<br>
-                        <strong>리드 외:</strong> ${b.lead_out} | <strong>포장단독:</strong> ${b.takeout}<br>
+                        <strong>상태:</strong> ${b.status}<br>
+                        <strong>서비스:</strong> ${b.service} | <strong>포장계약:</strong> ${b.takeout}<br>
+                        <strong>이용료:</strong> VD ${formatRate(b.vd)} / TO ${formatRate(b.to)} / OD ${b.od}<br>
+                        <strong>템플릿:</strong> ${b.template}<br>
+                        <strong>POS 필수연동:</strong> ${b.pos_required} ${b.pos_required === 'Y' ? '('+b.pos_path+')' : ''}<br>
+                        <strong>원산지 자동반영:</strong> ${b.origin_auto} | <strong>리드외:</strong> ${b.lead_out}<br>
                         <strong>가게쿠폰:</strong> ${b.coupon} | <strong>추천광고:</strong> ${b.ad} | <strong>할인랭킹:</strong> ${b.rank}<br>
-                        <strong>템플릿:</strong> ${b.package}
+                        <strong>노출상호명:</strong> ${b.display_name}
                     </div>
                 </div>`;
             });
@@ -244,7 +259,7 @@
             if (query.endsWith('구') || query.endsWith('군') || query.endsWith('시')) {
                 candidates = [query];
             } else {
-                candidates = [query + '구', query + '군', query + '시'];
+                candidates = [query + '시', query + '구', query + '군'];
             }
 
             let foundRegion = null;
@@ -271,4 +286,24 @@
             html += `<div style="font-size:12px; margin-bottom:8px;">어느 지역인가요?</div>`;
             html += `<div class="sido-select">`;
             foundSidos.forEach(sido => {
-                html += `<button class="sido-btn"
+                html += `<button class="sido-btn" onclick="selectSido('${foundRegion}', '${sido}')">${sido} ${foundRegion}</button>`;
+            });
+            html += `</div>`;
+            showRegionResult(html, 'warning');
+        });
+
+        function selectSido(region, sido) {
+            showPromotion(region, sido);
+        }
+
+        function showRegionResult(message, className) {
+            regionResultDiv.innerHTML = message;
+            regionResultDiv.className = 'result show ' + className;
+        }
+
+        regionInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') regionBtn.click();
+        });
+    </script>
+</body>
+</html>
