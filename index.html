@@ -63,7 +63,7 @@
         </div>
         
         <div class="section">
-            <h2>지역별 프로모션 (10월)</h2>
+            <h2>지역별 프로모션 (11월)</h2>
             <label>구/군/시 입력 (예: 강남, 춘천, 수원)</label>
             <input type="text" id="regionInput" placeholder="강남">
             <button id="regionBtn">검색</button>
@@ -178,7 +178,7 @@
             if (e.key === 'Enter') brandBtn.click();
         });
 
-        // ===== 지역별 프로모션 (10월) =====
+        // ===== 지역별 프로모션 (11월) =====
         const newEntryRegions = ['여주시', '포천시', '안성시', '동두천시'];
         const welcomeSidos = ['세종', '부산', '울산', '대전', '대구', '광주', '충남', '충북', '전남', '전북', '경남', '경북', '강원', '제주'];
         const specialSidos = ['서울'];
@@ -187,19 +187,19 @@
         const promotionData = {
             special: {
                 name: '스페셜 프로모션 (서울)',
-                desc: '<strong>~ 1/31</strong><br>VD 7.7% / OD 4.7% + 3,200원 / 포장 7.7%<br><br><strong>2/1 ~</strong><br>VD 9.7% / OD 6.7% + 3,200원 / 포장 7.7%'
+                desc: '<strong>~ 2/28</strong><br>VD 7.7% / OD 4.7% + 3,200원 / 포장 7.7%<br><br><strong>3/1 ~</strong><br>VD 9.7% / OD 6.7% + 3,200원 / 포장 7.7%'
             },
             newEntry: {
                 name: '신규 입점 프로모션 (경기 4개시)',
-                desc: '<strong>대상:</strong> 여주, 포천, 안성, 동두천<br><br><strong>VD:</strong> 9.7%<br><strong>OD:</strong> 6.7% + 2,900원 (~12/31) → 9.7% + 2,900원 (1/1~)<br><strong>포장:</strong> 7.7%'
+                desc: '<strong>대상:</strong> 여주, 포천, 안성, 동두천<br><br><strong>VD:</strong> 9.7%<br><strong>OD:</strong> 6.7% + 2,900원 (~1/31) → 9.7% + 2,900원 (2/1~)<br><strong>포장:</strong> 7.7%'
             },
             plus: {
                 name: '신규 입점 프로모션 Plus (경기/인천)',
-                desc: '<strong>대상:</strong> 경기, 인천 전체 (여주/포천/안성/동두천 제외)<br><br><strong>VD:</strong> 9.7%<br><strong>OD:</strong> 5.7% + 3,100원 (~12/31) → 9.7% + 3,100원 (1/1~)<br><strong>포장:</strong> 7.7%'
+                desc: '<strong>대상:</strong> 경기, 인천 전체 (여주/포천/안성/동두천 제외)<br><br><strong>VD:</strong> 9.7%<br><strong>OD:</strong> 5.7% + 3,100원 (~1/31) → 9.7% + 3,100원 (2/1~)<br><strong>포장:</strong> 7.7%'
             },
             welcome: {
                 name: '웰컴 프로모션 (지방)',
-                desc: '<strong>VD:</strong> 6.7% (~12/31) → 9.7% (1/1~)<br><strong>OD:</strong> 6.7% + 2,900원 (~12/31) → 9.7% + 2,900원 (1/1~)<br><strong>포장:</strong> 7.7%'
+                desc: '<strong>VD:</strong> 6.7% (~1/31) → 9.7% (2/1~)<br><strong>OD:</strong> 6.7% + 2,900원 (~1/31) → 9.7% + 2,900원 (2/1~)<br><strong>포장:</strong> 7.7%'
             }
         };
 
@@ -271,24 +271,4 @@
             html += `<div style="font-size:12px; margin-bottom:8px;">어느 지역인가요?</div>`;
             html += `<div class="sido-select">`;
             foundSidos.forEach(sido => {
-                html += `<button class="sido-btn" onclick="selectSido('${foundRegion}', '${sido}')">${sido} ${foundRegion}</button>`;
-            });
-            html += `</div>`;
-            showRegionResult(html, 'warning');
-        });
-
-        function selectSido(region, sido) {
-            showPromotion(region, sido);
-        }
-
-        function showRegionResult(message, className) {
-            regionResultDiv.innerHTML = message;
-            regionResultDiv.className = 'result show ' + className;
-        }
-
-        regionInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') regionBtn.click();
-        });
-    </script>
-</body>
-</html>
+                html += `<button class="sido-btn"
